@@ -1,18 +1,11 @@
-# WCL TS Components Template
-This is a template project that allows you to write Warcraft Logs Report Components
-in Typescript and transpile it directly to JavaScript that can be copied and pasted directly into Warcraft Logs.
-Having all of your components at one place enables easy sharing and reusing code between your different components.
+# WCL TS Components
 
+## Death Recap
 
-### Features
-- Full typescript support
-- Easily share code between different components
-- Include your typescript source directly as comments
-- Creates export strings for you to quickly share components with others
-- File watcher for a faster write - test cycle
-- Automatically tests your component in WCL using Puppeteer
-- Import Markdown files directly into your component
-- [Github Action Example](#github-actions-example-not-included-in-template) to run a webpack build directly in your repo
+[Import String](https://github.com/yuripiratello/wcl-components/blob/main/dist/deathRecap.component.lzstring.txt)
+
+This is a component that shows the last 5 deaths of a player in a fight.
+It will show the time of death, the ability that killed the player and the defensive skills used during the fight by the player.
 
 
 ## How to use
@@ -39,22 +32,6 @@ ___
 You can configure the included plugins directly in the [template config](template.config.js). 
 Omitting a property of `TemplateConfig.plugins` or assigning a falsy value will deactivate the plugin all together.
 
-___
-### Banner
-This template includes an implementation for the webpack Banner Plugin.
-It can be configured directly in the [template config](template.config.js)
-
-```ts
-module.exports = {
-    plugins: {
-        banner: {
-            active: true,
-            banner: "Created using the WCL-TS-Components Template https://github.com/JoschiGrey/WCL-TS-Components",
-            include: /-*\.js/
-        }
-    }
-}
-```
 ___
 ### Watcher
 Webpacks file watcher will react to all your changes and retranspile your code into components on the fly.
