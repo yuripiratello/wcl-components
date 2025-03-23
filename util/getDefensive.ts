@@ -1,5 +1,6 @@
 type Defensive = {
   spellId: number;
+  name: string;
   baseCd: number;
   cdReduction: boolean;
   charges: boolean;
@@ -10,12 +11,14 @@ type ClassDefensive = {
   class: string;
   defensives: Defensive[];
 };
+
 const DEFENSIVES: ClassDefensive[] = [
   {
     class: "Death Knight",
     defensives: [
       {
         spellId: 48743,
+        name: "Death Pact",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -23,6 +26,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 49039,
+        name: "Lichborne",
         baseCd: 120000,
         cdReduction: true,
         charges: false,
@@ -30,6 +34,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 48792,
+        name: "Icebound Fortitude",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -37,6 +42,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 51052,
+        name: "Anti-Magic Zone",
         baseCd: 120000,
         cdReduction: true,
         charges: false,
@@ -44,6 +50,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 48707,
+        name: "Anti-Magic Shell",
         baseCd: 60000,
         cdReduction: true,
         charges: false,
@@ -51,6 +58,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 49998,
+        name: "Death Strike",
         baseCd: 0,
         cdReduction: false,
         charges: false,
@@ -63,6 +71,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 196718,
+        name: "Darkness",
         baseCd: 300000,
         cdReduction: true,
         charges: false,
@@ -70,6 +79,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 196555,
+        name: "Netherwalk",
         baseCd: 180000,
         cdReduction: false,
         charges: false,
@@ -77,6 +87,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 198589,
+        name: "Blur",
         baseCd: 60000,
         cdReduction: false,
         charges: false,
@@ -89,6 +100,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 319454,
+        name: "Heart of the Wild",
         baseCd: 300000,
         cdReduction: false,
         charges: false,
@@ -96,6 +108,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 108238,
+        name: "Renewal",
         baseCd: 90000,
         cdReduction: false,
         charges: false,
@@ -103,6 +116,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 124974,
+        name: "Nature's Vigil",
         baseCd: 90000,
         cdReduction: false,
         charges: false,
@@ -110,6 +124,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 22812,
+        name: "Barkskin",
         baseCd: 60000,
         cdReduction: false,
         charges: false,
@@ -117,6 +132,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 22842,
+        name: "Frenzied Regeneration",
         baseCd: 36000,
         cdReduction: true,
         charges: false,
@@ -124,6 +140,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 5487,
+        name: "Bear Form",
         baseCd: 0,
         cdReduction: false,
         charges: false,
@@ -131,6 +148,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 61336,
+        name: "Feral Instincts",
         baseCd: 180000,
         cdReduction: false,
         charges: false,
@@ -143,6 +161,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 374227,
+        name: "Zephyr",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -150,6 +169,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 363916,
+        name: "Obsidian Scales",
         baseCd: 90000,
         cdReduction: true,
         charges: true,
@@ -157,6 +177,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 374348,
+        name: "Renewing Blaze",
         baseCd: 90000,
         cdReduction: true,
         charges: false,
@@ -164,6 +185,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 360827,
+        name: "Blistering Scales",
         baseCd: 30000,
         cdReduction: false,
         charges: false,
@@ -176,6 +198,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 186265,
+        name: "Aspect of the Turtle",
         baseCd: 180000,
         cdReduction: true,
         charges: false,
@@ -183,6 +206,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 109304,
+        name: "Exhilaration",
         baseCd: 120000,
         cdReduction: true,
         charges: false,
@@ -190,6 +214,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 264735,
+        name: "Survival of the Fittest",
         baseCd: 120000,
         cdReduction: true,
         charges: true,
@@ -197,6 +222,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 388035,
+        name: "Fortitude of the Bear",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -209,6 +235,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 414658,
+        name: "Ice Cold",
         baseCd: 240000,
         cdReduction: true,
         charges: false,
@@ -216,6 +243,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 45438,
+        name: "Ice Block",
         baseCd: 240000,
         cdReduction: true,
         charges: false,
@@ -223,6 +251,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 55342,
+        name: "Mirror Image",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -230,6 +259,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 110960,
+        name: "Greater Invisibility",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -237,6 +267,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 414660,
+        name: "Mass Barrier",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -244,6 +275,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 342245,
+        name: "Alter Time",
         baseCd: 60000,
         cdReduction: true,
         charges: false,
@@ -251,6 +283,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 342247,
+        name: "Alter Time",
         baseCd: 60000,
         cdReduction: true,
         charges: false,
@@ -258,6 +291,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 235450,
+        name: "Prismatic Barrier",
         baseCd: 25000,
         cdReduction: false,
         charges: false,
@@ -265,6 +299,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 235313,
+        name: "Blazing Barrier",
         baseCd: 25000,
         cdReduction: false,
         charges: false,
@@ -272,6 +307,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 235219,
+        name: "Cold Snap",
         baseCd: 300000,
         cdReduction: false,
         charges: false,
@@ -279,6 +315,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 11426,
+        name: "Frost Barrier",
         baseCd: 25000,
         cdReduction: false,
         charges: false,
@@ -291,6 +328,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 115203,
+        name: "Fortifying Brew",
         baseCd: 120000,
         cdReduction: true,
         charges: false,
@@ -298,6 +336,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 122783,
+        name: "Diffuse Magic",
         baseCd: 90000,
         cdReduction: false,
         charges: false,
@@ -305,6 +344,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 122470,
+        name: "Touch of Karma",
         baseCd: 90000,
         cdReduction: false,
         charges: false,
@@ -317,6 +357,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 471195,
+        name: "Lay on Hands",
         baseCd: 600000,
         cdReduction: true,
         charges: false,
@@ -324,6 +365,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 1022,
+        name: "Blessing of Protection",
         baseCd: 300000,
         cdReduction: true,
         charges: false,
@@ -331,6 +373,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 642,
+        name: "Divine Shield",
         baseCd: 300000,
         cdReduction: true,
         charges: false,
@@ -338,6 +381,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 6940,
+        name: "Blessing of Sacrifice",
         baseCd: 120000,
         cdReduction: true,
         charges: false,
@@ -345,6 +389,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 498,
+        name: "Divine Protection",
         baseCd: 90000,
         cdReduction: true,
         charges: false,
@@ -352,6 +397,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 403876,
+        name: "Divine Protection",
         baseCd: 90000,
         cdReduction: true,
         charges: false,
@@ -359,6 +405,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 184662,
+        name: "Shield of Vengeance",
         baseCd: 90000,
         cdReduction: false,
         charges: false,
@@ -371,6 +418,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 108968,
+        name: "Void Shift",
         baseCd: 300000,
         cdReduction: false,
         charges: false,
@@ -378,6 +426,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 15286,
+        name: "Vampiric Embrace",
         baseCd: 120000,
         cdReduction: true,
         charges: false,
@@ -385,6 +434,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 19236,
+        name: "Desperate Prayer",
         baseCd: 90000,
         cdReduction: true,
         charges: false,
@@ -392,6 +442,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 586,
+        name: "Fade",
         baseCd: 30000,
         cdReduction: true,
         charges: false,
@@ -399,6 +450,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 47585,
+        name: "Dispersion",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -411,6 +463,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 5277,
+        name: "Evasion",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -418,6 +471,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 31224,
+        name: "Cloak of Shadows",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -425,6 +479,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 185311,
+        name: "Crimson Vial",
         baseCd: 30000,
         cdReduction: false,
         charges: false,
@@ -432,6 +487,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 1966,
+        name: "Feint",
         baseCd: 15000,
         cdReduction: true,
         charges: true,
@@ -444,6 +500,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 198103,
+        name: "Earth Elemental",
         baseCd: 300000,
         cdReduction: false,
         charges: false,
@@ -451,6 +508,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 108271,
+        name: "Astral Shift",
         baseCd: 120000,
         cdReduction: true,
         charges: false,
@@ -458,6 +516,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 108281,
+        name: "Ancestral Guidance",
         baseCd: 120000,
         cdReduction: false,
         charges: false,
@@ -465,6 +524,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 108270,
+        name: "Stone Bulwark Totem",
         baseCd: 120000,
         cdReduction: true,
         charges: false,
@@ -477,6 +537,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 104773,
+        name: "Unending Resolve",
         baseCd: 180000,
         cdReduction: true,
         charges: false,
@@ -484,6 +545,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 108416,
+        name: "Dark Pact",
         baseCd: 60000,
         cdReduction: true,
         charges: false,
@@ -491,6 +553,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 452930,
+        name: "Demonic Healthstone",
         baseCd: 60000,
         cdReduction: false,
         charges: false,
@@ -498,6 +561,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 6789,
+        name: "Mortal Coil",
         baseCd: 45000,
         cdReduction: false,
         charges: false,
@@ -505,6 +569,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 234153,
+        name: "Drain Life",
         baseCd: 0,
         cdReduction: false,
         charges: false,
@@ -517,6 +582,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 383762,
+        name: "Bitter Immunity",
         baseCd: 180000,
         cdReduction: false,
         charges: false,
@@ -524,6 +590,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 97462,
+        name: "Rallying Cry",
         baseCd: 180000,
         cdReduction: false,
         charges: false,
@@ -531,6 +598,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 202168,
+        name: "Impending Victory",
         baseCd: 25000,
         cdReduction: false,
         charges: false,
@@ -538,6 +606,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 23920,
+        name: "Spell Reflection",
         baseCd: 25000,
         cdReduction: true,
         charges: false,
@@ -545,6 +614,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 386208,
+        name: "Defensive Stance",
         baseCd: 3000,
         cdReduction: false,
         charges: false,
@@ -552,6 +622,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 118038,
+        name: "Die by the Sword",
         baseCd: 120000,
         cdReduction: true,
         charges: false,
@@ -559,6 +630,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 190456,
+        name: "Ignore Pain",
         baseCd: 11000,
         cdReduction: false,
         charges: false,
@@ -566,6 +638,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 184364,
+        name: "Enraged Regeneration",
         baseCd: 120000,
         cdReduction: true,
         charges: false,
@@ -578,6 +651,7 @@ const DEFENSIVES: ClassDefensive[] = [
     defensives: [
       {
         spellId: 6262,
+        name: "Healthstone",
         baseCd: 0,
         cdReduction: false,
         charges: false,
@@ -585,6 +659,7 @@ const DEFENSIVES: ClassDefensive[] = [
       },
       {
         spellId: 431416,
+        name: "Algari Healing Potion",
         baseCd: 300000,
         cdReduction: false,
         charges: false,

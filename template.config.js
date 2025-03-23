@@ -1,30 +1,32 @@
 /**@type {import("definitions/template").TemplateConfig} config*/
 module.exports = {
-    plugins: {
-        clearSource: {
-            compress: true
-        },
-        exportString: true,
-        autoTest: {
-            active: false,
-            loginMethod: "WCL",
-            components: {
-                exampleComponent: "https://www.warcraftlogs.com/reports/YNFngZby4zpWmvfC#fight=5&view=components"
-            }
-        },
-        bannerPlugin: {
-            active: true,
-            options: {
-                banner: "Created using the WCL-TS-Components Template https://github.com/JoschiGrey/WCL-TS-Components",
-                include: /-*\.js/
-            }
-        }
+  plugins: {
+    clearSource: {
+      compress: true,
     },
-    components: {
-        exampleComponent: {
-            h: 2,
-            w: 2
-        }
+    exportString: true,
+    autoTest: {
+      active: false,
+      loginMethod: "WCL",
+      components: {
+        deathRecap:
+          "https://www.warcraftlogs.com/reports/YNFngZby4zpWmvfC#fight=5&view=components",
+      },
     },
-    watch: true
-}
+    deathRecap: {
+      active: true,
+      options: {
+        banner:
+          "Created using the WCL-TS-Components https://github.com/yuripiratello/wcl-components",
+        include: /-*\.js/,
+      },
+    },
+  },
+  components: {
+    deathRecap: {
+      h: 5,
+      w: 5,
+    },
+  },
+  watch: true,
+};
