@@ -20,4 +20,24 @@ type FightsWithDeathEvents = {
   deaths: RpgLogs.DeathEvent[];
 };
 
-export { PlayerDeath, FightDeaths, FightsWithDeathEvents };
+type DefensiveStatus = {
+  ability:
+    | RpgLogs.Ability
+    | {
+        id: number;
+        name: string;
+        type: number;
+        icon: string;
+        isExcludedFromDamageAndHealing: boolean;
+        isOffGcd: boolean;
+        isMelee: boolean;
+        isStaggerAbsorb: boolean;
+        isStaggerDamage: boolean;
+        isStaggerDmaage: boolean;
+      };
+  lastUsed: number | null;
+  available: boolean;
+  cooldown: number;
+};
+
+export { PlayerDeath, FightDeaths, FightsWithDeathEvents, DefensiveStatus };
