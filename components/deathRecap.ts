@@ -1,11 +1,12 @@
 import { FightDeaths, FightsWithDeathEvents, PlayerDeath } from "../util/types";
 
 import type { RpgLogs } from "../definitions/RpgLogs";
+import getAbilityInstanceById from "../util/getAbilityInstanceById";
 import getAbilityMarkdown from "../util/getAbilityMarkdown";
 import { getClassDefensives } from "../util/getDefensive";
 
 const CHECK_BY_LAST_10_SECONDS = false;
-const DEFAULT_CUT_ON_DEATHS = 5;
+const DEFAULT_CUT_ON_DEATHS = 3;
 
 const getAbilityDescription = (
   ability: RpgLogs.Ability | null,
@@ -99,46 +100,126 @@ const getDeathByFights = (fights: RpgLogs.Fight[]): FightsWithDeathEvents[] => {
   return fightsWithDeaths;
 };
 
+type DefensiveStatus = {
+  ability:
+    | RpgLogs.Ability
+    | {
+        id: number;
+        name: string;
+        type: number;
+        icon: string;
+        isExcludedFromDamageAndHealing: boolean;
+        isOffGcd: boolean;
+        isMelee: boolean;
+        isStaggerAbsorb: boolean;
+        isStaggerDamage: boolean;
+        isStaggerDmaage: boolean;
+      };
+  lastUsed: number | null;
+  available: boolean;
+  cooldown: number;
+};
+
+const getDefensiveStatuses = (
+  fight: RpgLogs.Fight,
+  playerDeath: RpgLogs.DeathEvent,
+  playerSpec: string
+): DefensiveStatus[] => {
+  if (!playerDeath.target?.subType) return [];
+
+  // Get all available defensives for the class/spec
+  const allDefensives = getClassDefensives(
+    playerDeath.target.subType,
+    playerSpec
+  );
+
+  // Get all defensive casts by the player
+  const defensiveCasts = fight
+    .eventsByCategoryAndDisposition("casts", "friendly")
+    .filter((castEvent) => {
+      if (castEvent.source == null) return false;
+      return playerDeath.target?.id === castEvent.source.id;
+    })
+    .filter((castEvent) => {
+      if (!castEvent.ability) return false;
+      return allDefensives.some((def) => def.spellId === castEvent.ability?.id);
+    });
+
+  // Create status for each defensive
+  return allDefensives.map((defensive) => {
+    const lastCast = defensiveCasts
+      .filter((cast) => cast.ability?.id === defensive.spellId)
+      .sort((a, b) => b.timestamp - a.timestamp)[0];
+
+    const lastUsed = lastCast ? lastCast.timestamp : null;
+    const available =
+      !lastUsed || playerDeath.timestamp - lastUsed > defensive.baseCd;
+
+    return {
+      ability: lastCast?.ability ||
+        getAbilityInstanceById(defensive.spellId) || {
+          id: defensive.spellId,
+          name: defensive.name
+            ? `${defensive.name} [Never used]`
+            : "Unknown (Fall?)",
+          type: 0,
+          icon: "",
+          isExcludedFromDamageAndHealing: false,
+          isOffGcd: false,
+          isMelee: false,
+          isStaggerAbsorb: false,
+          isStaggerDamage: false,
+          isStaggerDmaage: false,
+        },
+      lastUsed,
+      available,
+      cooldown: defensive.baseCd,
+    };
+  });
+};
+
 const getDefensiveCasts = (
   fight: RpgLogs.Fight,
   playerDeath: RpgLogs.DeathEvent,
   playerSpec: string
 ) => {
-  const playerSpecClass = `${playerSpec} ${playerDeath.target?.subType}`;
-  return (
-    fight
-      .eventsByCategoryAndDisposition("casts", "friendly")
-      .filter((castEvent) => {
-        if (castEvent.source == null) return false;
-        return playerDeath.target?.id === castEvent.source.id;
-      })
-      .map((castEvent) => {
-        return isDefensive(castEvent, playerDeath, playerSpec);
-      })
-      .filter((abilityEvent) => abilityEvent !== null)
-      // .filter((abilityEvent) => {
-      //   if (!abilityEvent) return false;
-      //   if (dpsSpecs.includes(playerSpecClass))
-      //     return (
-      //       dpsTankCds.includes(abilityEvent.ability.id) ||
-      //       dpsHealerCds.includes(abilityEvent.ability.id)
-      //     );
-      //   return false;
-      // })
-      .reduce((defensiveAbilities, abilityEvent) => {
-        if (abilityEvent !== null) {
-          defensiveAbilities.push(
-            getAbilityDescription(
-              abilityEvent.ability,
-              fight.startTime,
-              abilityEvent.event,
-              playerDeath.timestamp
-            )
-          );
-        }
-        return defensiveAbilities;
-      }, [] as string[])
+  const defensiveStatuses = getDefensiveStatuses(
+    fight,
+    playerDeath,
+    playerSpec
   );
+
+  const usedDefensives = defensiveStatuses
+    .filter((status) => status.lastUsed !== null)
+    .map((status) => {
+      return getAbilityDescription(
+        status.ability,
+        fight.startTime,
+        { timestamp: status.lastUsed! } as RpgLogs.AnyEvent,
+        playerDeath.timestamp
+      );
+    });
+
+  const availableDefensives = defensiveStatuses
+    .filter((status) => status.available)
+    .map((status) => `<Kill>${getAbilityMarkdown(status.ability)}</Kill>`);
+
+  const unavailableDefensives = defensiveStatuses
+    .filter((status) => !status.available && status.lastUsed)
+    .map((status) => {
+      const remainingCd = Math.round(
+        (status.cooldown - (playerDeath.timestamp - status.lastUsed!)) / 1000
+      );
+      return `<Wipe>${getAbilityMarkdown(
+        status.ability
+      )} (${remainingCd}s)</Wipe>`;
+    });
+
+  return {
+    usedDefensives,
+    availableDefensives,
+    unavailableDefensives,
+  };
 };
 
 export default getComponent = () => {
@@ -153,7 +234,7 @@ export default getComponent = () => {
         const playerSpec = fightWithDeaths.fight.specForPlayer(
           playerDeath.target
         );
-        const defensiveCasts = getDefensiveCasts(
+        const defensiveInfo = getDefensiveCasts(
           fightWithDeaths.fight,
           playerDeath,
           playerSpec
@@ -176,13 +257,21 @@ export default getComponent = () => {
           ),
           timestamp: formattedDeathTime,
           defensiveCasts:
-            defensiveCasts && defensiveCasts.length > 0
-              ? defensiveCasts.join("<br>")
+            defensiveInfo.usedDefensives.length > 0
+              ? defensiveInfo.usedDefensives.join("<br>")
               : `<Wipe>No defensives${
                   CHECK_BY_LAST_10_SECONDS
                     ? " between death and last 10 seconds"
                     : " the entire fight!!"
                 }</Wipe>`,
+          availableDefensives:
+            defensiveInfo.availableDefensives.length > 0
+              ? defensiveInfo.availableDefensives.join("<br>")
+              : "<Wipe>No defensives available</Wipe>",
+          unavailableDefensives:
+            defensiveInfo.unavailableDefensives.length > 0
+              ? defensiveInfo.unavailableDefensives.join("<br>")
+              : "<Wipe>No defensives on cooldown</Wipe>",
         });
         return playerDeaths;
       },
@@ -203,6 +292,8 @@ export default getComponent = () => {
         ability: fightDeaths.fightId,
         timestamp: fightDeaths.fightId,
         defensiveCasts: fightDeaths.fightId,
+        availableDefensives: fightDeaths.fightId,
+        unavailableDefensives: fightDeaths.fightId,
       },
       ...fightDeaths.deaths,
     ];
@@ -233,10 +324,15 @@ export default getComponent = () => {
             defensiveCasts: {
               header: "Defensive Casts",
             },
+            availableDefensives: {
+              header: "Available Defensives",
+            },
+            unavailableDefensives: {
+              header: "Unavailable Defensives",
+            },
           },
         },
       },
-      // data: seriesData,
       data: flatSeriesData,
     },
   } as RpgLogs.TableComponent;

@@ -6,6 +6,8 @@ type PlayerDeath = {
   ability: RpgLogs.Ability | string;
   timestamp: string;
   defensiveCasts: string;
+  availableDefensives: string;
+  unavailableDefensives: string;
 };
 
 type FightDeaths = {
