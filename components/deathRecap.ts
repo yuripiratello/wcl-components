@@ -21,7 +21,8 @@ const getAbilityDescription = (
   ability: RpgLogs.Ability | null,
   startFightTime: number,
   abilityEvent?: RpgLogs.AnyEvent,
-  deathTime?: number
+  deathTime?: number,
+  resurrected?: boolean
 ): string => {
   if (!ability) return "Unknown (Fall)";
 
@@ -36,6 +37,11 @@ const getAbilityDescription = (
 
   // If the ability was cast well before the death (outside the threshold), show normally.
   if (deathTime - LAST_SECONDS_THRESHOLD > abilityEvent.timestamp) {
+    return `${skillTime} ${getAbilityMarkdown(ability)}`;
+  }
+
+  // If the ability was cast after the player was resurrected, show normally.
+  if (resurrected && abilityEvent.timestamp > deathTime) {
     return `${skillTime} ${getAbilityMarkdown(ability)}`;
   }
 
@@ -88,7 +94,9 @@ const getDefensiveStatuses = (
       (castEvent) =>
         castEvent.ability &&
         allDefensives.some((def) => def.spellId === castEvent.ability!.id)
-    );
+    )
+    .filter((castEvent) => castEvent.timestamp <= playerDeath.timestamp)
+    .sort((a, b) => b.timestamp - a.timestamp);
 
   return allDefensives.map((defensive) => {
     // Find casts for the current defensive ability, sorted with the most recent first.
@@ -146,7 +154,8 @@ const getDefensiveStatuses = (
 const getDefensiveCasts = (
   fight: RpgLogs.Fight,
   playerDeath: RpgLogs.DeathEvent,
-  playerSpec: string
+  playerSpec: string,
+  resurrected: boolean
 ) => {
   const statuses = getDefensiveStatuses(fight, playerDeath, playerSpec);
 
@@ -157,7 +166,8 @@ const getDefensiveCasts = (
         status.ability,
         fight.startTime,
         { timestamp: status.lastUsed! } as RpgLogs.AnyEvent,
-        playerDeath.timestamp
+        playerDeath.timestamp,
+        resurrected
       )
     );
 
@@ -208,10 +218,28 @@ export default getComponent = ():
         const playerSpec = fightWithDeaths.fight.specForPlayer(
           playerDeath.target
         );
+
+        // Check if player was resurrected after death
+        const resEvent = fightWithDeaths.fight
+          .eventsByCategoryAndDisposition("combatResurrects", "friendly")
+          .find(
+            (event) =>
+              event.timestamp > playerDeath.timestamp &&
+              event.target?.id === playerDeath.target?.id
+          );
+
+        const resurrectedText = resEvent
+          ? `<Kill>Yes [${formatTimestamp(
+              fightWithDeaths.fight.startTime,
+              resEvent.timestamp
+            )}]</Kill>`
+          : `<Wipe>No</Wipe>`;
+
         const defensiveInfo = getDefensiveCasts(
           fightWithDeaths.fight,
           playerDeath,
-          playerSpec
+          playerSpec,
+          !!resEvent
         );
         const formattedDeathTime = formatTimestamp(
           fightWithDeaths.fight.startTime,
@@ -242,6 +270,7 @@ export default getComponent = ():
             defensiveInfo.unavailableDefensives.length > 0
               ? defensiveInfo.unavailableDefensives.join("<br>")
               : "<Wipe>No defensives on cooldown</Wipe>",
+          resurrected: resurrectedText,
         });
         return playerDeaths;
       },
@@ -264,6 +293,7 @@ export default getComponent = ():
       defensiveCasts: fightDeaths.fightId,
       availableDefensives: fightDeaths.fightId,
       unavailableDefensives: fightDeaths.fightId,
+      resurrected: fightDeaths.fightId,
     },
     ...fightDeaths.deaths,
   ]);
@@ -284,6 +314,7 @@ export default getComponent = ():
             defensiveCasts: { header: "Defensive Casts" },
             availableDefensives: { header: "Available Defensives" },
             unavailableDefensives: { header: "Unavailable Defensives" },
+            resurrected: { header: "Resurrected", textAlign: "center" },
           },
         },
       },
