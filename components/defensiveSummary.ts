@@ -7,6 +7,7 @@ import {
 
 import type { RpgLogs } from "../definitions/RpgLogs";
 import { TimeUtils } from "../util/timeUtils";
+import getAbilityMarkdown from "../util/getAbilityMarkdown";
 import getPlayerMarkdown from "../util/getPlayerMarkdown";
 
 // Column definitions for the defensive summary table
@@ -84,23 +85,6 @@ const processDeathEvent = (
   };
 };
 
-// Main function to get defensive summary data
-export const getDefensiveSummary = (): RpgLogs.TableComponent => {
-  const component = getComponent();
-  if (
-    typeof component === "string" ||
-    Array.isArray(component) ||
-    typeof component === "number" ||
-    !("component" in component)
-  ) {
-    throw new Error("Invalid component type");
-  }
-  if (component.component !== "Table") {
-    throw new Error("Expected Table component");
-  }
-  return component;
-};
-
 // Main component function
 export default getComponent = (): RpgLogs.TableComponent => {
   const deathByFights = getDeathByFights(reportGroup.fights);
@@ -140,7 +124,7 @@ export default getComponent = (): RpgLogs.TableComponent => {
         const abilityId = result.killingAbility.id;
         const existingAbility = summary.killingAbilities.get(abilityId) || {
           abilityId,
-          abilityName: `<AbilityIcon id="${result.killingAbility.id}" icon="${result.killingAbility.icon}" type="${result.killingAbility.type}">${result.killingAbility.name}</AbilityIcon>`,
+          abilityName: getAbilityMarkdown(result.killingAbility),
           fightIds: new Set<number>(),
         };
         existingAbility.fightIds.add(result.fightId);

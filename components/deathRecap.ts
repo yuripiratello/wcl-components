@@ -14,7 +14,6 @@ import getPlayerMarkdown from "../util/getPlayerMarkdown";
 
 // Column definitions for the death recap table
 const TABLE_COLUMNS = {
-  fightId: { header: "Fight ID" },
   player: { header: "Player" },
   ability: { header: "Ability" },
   timestamp: { header: "Death Time", textAlign: "right" },
@@ -188,23 +187,6 @@ const formatDefensivesList = (list: string[], emptyMessage: string): string => {
   return list.length > 0 ? list.join("<br>") : emptyMessage;
 };
 
-// Main function to get death recap data
-export const getDeathRecap = (): RpgLogs.TableComponent => {
-  const component = getComponent();
-  if (
-    typeof component === "string" ||
-    Array.isArray(component) ||
-    typeof component === "number" ||
-    !("component" in component)
-  ) {
-    throw new Error("Invalid component type");
-  }
-  if (component.component !== "Table") {
-    throw new Error("Expected Table component");
-  }
-  return component;
-};
-
 // Main component function.
 export default getComponent = ():
   | RpgLogs.TableComponent
@@ -242,13 +224,6 @@ export default getComponent = ():
     };
   });
 
-  // Create header rows and flatten the data
-  const flatSeriesData = seriesData.flatMap((fightDeaths) => [
-    // Header row for each fight
-    createHeaderRow(fightDeaths.fightId),
-    ...fightDeaths.deaths,
-  ]);
-
   const buildFlexComponentDivs = (seriesData: FightDeaths[]) => {
     const divs: any[] = [];
     seriesData.map((fightDeath) => {
@@ -281,16 +256,3 @@ export default getComponent = ():
     },
   } as any;
 };
-
-// Helper function to create a header row
-const createHeaderRow = (fightId: number): PlayerDeath => ({
-  fightId,
-  player: fightId.toString(),
-  ability: fightId.toString(),
-  timestamp: fightId.toString(),
-  defensiveCasts: fightId.toString(),
-  availableDefensives: fightId.toString(),
-  unavailableDefensives: fightId.toString(),
-  activeBuffs: fightId.toString(),
-  resurrected: fightId.toString(),
-});
