@@ -1,5 +1,6 @@
 import {
   CONFIG,
+  getActiveBuffs,
   getDeathByFights,
   getDefensiveStatuses,
   getResurrectionInfo,
@@ -20,6 +21,7 @@ const TABLE_COLUMNS = {
   defensiveCasts: { header: "Defensive Cast" },
   availableDefensives: { header: "Available Defensives" },
   unavailableDefensives: { header: "Unavailable Defensives" },
+  activeBuffs: { header: "Active Buffs", textAlign: "center" },
   resurrected: { header: "Resurrected", textAlign: "center" },
 } as const;
 
@@ -85,6 +87,7 @@ const getDefensiveCasts = (
 
   const usedDefensives = statuses
     .filter((status) => status.lastUsed !== null)
+    .sort((a, b) => a.lastUsed! - b.lastUsed!)
     .map((status) =>
       getAbilityDescription({
         ability: status.ability,
@@ -136,6 +139,13 @@ const processDeathEvent = (
     resInfo.wasResurrected
   );
 
+  // Get active buffs at time of death
+  const activeBuffs = getActiveBuffs(fight, playerDeath, playerSpec);
+  const activeBuffsList = activeBuffs.map(
+    (event: RpgLogs.ApplyBuffOrDebuffEvent) =>
+      `<Kill>${getAbilityMarkdown(event.ability!)}</Kill>`
+  );
+
   return {
     fightId: fight.id,
     player: getPlayerMarkdown(playerDeath.target, playerSpec),
@@ -163,6 +173,7 @@ const processDeathEvent = (
       defensiveInfo.unavailableDefensives,
       "<Wipe>No defensives on cooldown</Wipe>"
     ),
+    activeBuffs: formatDefensivesList(activeBuffsList, "<Wipe>None</Wipe>"),
     resurrected: resInfo.wasResurrected
       ? `<Kill>Yes [${TimeUtils.formatTimestamp(
           fight.startTime,
@@ -238,20 +249,75 @@ export default getComponent = ():
     ...fightDeaths.deaths,
   ]);
 
-  return {
-    component: "Table",
-    props: {
-      columns: {
-        title: {
-          header: "Death Recap",
-          textAlign: "center",
-          colSpan: 5,
-          columns: TABLE_COLUMNS,
+  const buildFlexComponentDivs = (seriesData: FightDeaths[]) => {
+    const divs: any[] = [];
+    seriesData.map((fightDeath) => {
+      divs.push({
+        data: {
+          component: "EnhancedMarkdown",
+          props: {
+            content: `Fight ID: ${fightDeath.fightId}`,
+          },
         },
-      },
-      data: flatSeriesData,
+      });
+      divs.push({
+        data: {
+          component: "Table",
+          props: {
+            columns: {
+              title: {
+                header: "Death Recap",
+                textAlign: "center",
+                colSpan: 5,
+                columns: TABLE_COLUMNS,
+              },
+            },
+            data: fightDeath.deaths,
+          },
+        },
+      });
+    });
+    return divs;
+  };
+
+  return {
+    component: "Flex",
+    props: {
+      direction: "column",
+      gap: 8,
+      divs: buildFlexComponentDivs(seriesData),
+      // divs: [{
+      //   data: {
+      //     component: 'EnhancedMarkdown',
+      //     props: {
+      //       content: '1'
+      //     }
+      //   },
+      // }, {
+      //   data: {
+      //     component: 'EnhancedMarkdown',
+      //     props: {
+      //       content: '2'
+      //     }
+      //   }
+      // }]
     },
-  } as RpgLogs.TableComponent;
+  } as any;
+
+  // return {
+  //   component: "Table",
+  //   props: {
+  //     columns: {
+  //       title: {
+  //         header: "Death Recap",
+  //         textAlign: "center",
+  //         colSpan: 5,
+  //         columns: TABLE_COLUMNS,
+  //       },
+  //     },
+  //     data: flatSeriesData,
+  //   },
+  // } as RpgLogs.TableComponent;
 };
 
 // Helper function to create a header row
@@ -263,5 +329,6 @@ const createHeaderRow = (fightId: number): PlayerDeath => ({
   defensiveCasts: fightId.toString(),
   availableDefensives: fightId.toString(),
   unavailableDefensives: fightId.toString(),
+  activeBuffs: fightId.toString(),
   resurrected: fightId.toString(),
 });

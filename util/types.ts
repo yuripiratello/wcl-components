@@ -9,6 +9,7 @@ type PlayerDeath = {
   availableDefensives: string;
   unavailableDefensives: string;
   resurrected: string;
+  activeBuffs: string;
 };
 
 type FightDeaths = {
