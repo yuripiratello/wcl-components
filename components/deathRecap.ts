@@ -1,23 +1,15 @@
 import {
-  DefensiveStatus,
-  FightDeaths,
-  FightsWithDeathEvents,
-  PlayerDeath,
-} from "../util/types";
+  CONFIG,
+  getDeathByFights,
+  getDefensiveStatuses,
+  getResurrectionInfo,
+} from "../util/deathUtils";
+import { FightDeaths, PlayerDeath } from "../util/types";
 
 import type { RpgLogs } from "../definitions/RpgLogs";
-import getAbilityInstanceById from "../util/getAbilityInstanceById";
+import { TimeUtils } from "../util/timeUtils";
 import getAbilityMarkdown from "../util/getAbilityMarkdown";
-import { getClassDefensives } from "../util/getDefensive";
 import getPlayerMarkdown from "../util/getPlayerMarkdown";
-
-// Configuration constants
-const CONFIG = {
-  CHECK_ONLY_ONE_FIGHT: false,
-  CHECK_BY_LAST_10_SECONDS: false,
-  MAX_DEATHS_COUNT: 5,
-  LAST_SECONDS_THRESHOLD: 10000, // 10 seconds in ms
-} as const;
 
 // Column definitions for the death recap table
 const TABLE_COLUMNS = {
@@ -29,6 +21,11 @@ const TABLE_COLUMNS = {
   availableDefensives: { header: "Available Defensives" },
   unavailableDefensives: { header: "Unavailable Defensives" },
   resurrected: { header: "Resurrected", textAlign: "center" },
+} as const;
+
+// Configuration specific to death recap
+const DEATH_RECAP_CONFIG = {
+  CHECK_ONLY_ONE_FIGHT: false,
 } as const;
 
 interface AbilityDescriptionOptions {
@@ -70,138 +67,11 @@ const getAbilityDescription = ({
 };
 
 // Helper function to format ability with timestamp
-const formatAbilityWithTime = (skillTime: string, ability: RpgLogs.Ability): string => {
+const formatAbilityWithTime = (
+  skillTime: string,
+  ability: RpgLogs.Ability
+): string => {
   return `${skillTime} ${getAbilityMarkdown(ability)}`;
-};
-
-// Time formatting utilities
-const TimeUtils = {
-  // Pads a number with leading zeros
-  pad: (num: number, size: number): string => {
-    return num.toString().padStart(size, "0");
-  },
-
-  // Formats milliseconds into a readable duration
-  formatDuration: (ms: number): string => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    const milliseconds = ms % 1000;
-    return `${minutes}:${TimeUtils.pad(seconds, 2)}.${milliseconds}`;
-  },
-
-  // Formats a timestamp relative to the start of the fight
-  formatTimestamp: (startFightTime: number, eventTime: number): string => {
-    return TimeUtils.formatDuration(eventTime - startFightTime);
-  },
-};
-
-// Returns an array of fights with a limited number of death events per fight.
-const getDeathByFights = (fights: RpgLogs.Fight[]): FightsWithDeathEvents[] =>
-  fights.map((fight) => ({
-    fight,
-    deaths: fight.friendlyPlayerDeathEvents.slice(
-      0,
-      Math.min(fight.friendlyPlayerDeathEvents.length, CONFIG.MAX_DEATHS_COUNT)
-    ),
-  }));
-
-// Checks if a player was resurrected after death
-const getResurrectionInfo = (fight: RpgLogs.Fight, playerDeath: RpgLogs.DeathEvent) => {
-  const resEvent = fight
-    .eventsByCategoryAndDisposition("combatResurrects", "friendly")
-    .find(
-      (event) =>
-        event.timestamp > playerDeath.timestamp &&
-        event.target?.id === playerDeath.target?.id
-    );
-
-  return {
-    wasResurrected: !!resEvent,
-    text: resEvent
-      ? `<Kill>Yes [${TimeUtils.formatTimestamp(
-          fight.startTime,
-          resEvent.timestamp
-        )}]</Kill>`
-      : `<Wipe>No</Wipe>`,
-    event: resEvent,
-  };
-};
-
-// Computes the status of each defensive ability for a given death event.
-const getDefensiveStatuses = (
-  fight: RpgLogs.Fight,
-  playerDeath: RpgLogs.DeathEvent,
-  playerSpec: string
-): DefensiveStatus[] => {
-  if (!playerDeath.target?.subType) return [];
-
-  const allDefensives = getClassDefensives(
-    playerDeath.target.subType,
-    playerSpec
-  );
-
-  // Filter for casts by this player that match any defensive ability.
-  const defensiveCasts = fight
-    .eventsByCategoryAndDisposition("casts", "friendly")
-    .filter((castEvent) => castEvent.source?.id === playerDeath.target!.id)
-    .filter(
-      (castEvent) =>
-        castEvent.ability &&
-        allDefensives.some((def) => def.spellId === castEvent.ability!.id)
-    )
-    .filter((castEvent) => castEvent.timestamp <= playerDeath.timestamp)
-    .sort((a, b) => b.timestamp - a.timestamp);
-
-  return allDefensives.map((defensive) => {
-    // Find casts for the current defensive ability, sorted with the most recent first.
-    const casts = defensiveCasts
-      .filter((cast) => cast.ability?.id === defensive.spellId)
-      .sort((a, b) => b.timestamp - a.timestamp);
-
-    const lastCast = casts[0];
-    const secondLastCast = casts[1];
-    const lastUsed = lastCast ? lastCast.timestamp : null;
-
-    let available = false;
-    if (!lastUsed) {
-      available = true; // Never used, so it's available.
-    } else if (defensive.charges) {
-      // For abilities with charges.
-      if (!secondLastCast) {
-        available = playerDeath.timestamp - lastUsed > defensive.baseCd;
-      } else {
-        const remainingFirstCharge =
-          defensive.baseCd - (playerDeath.timestamp - secondLastCast.timestamp);
-        const remainingSecondCharge =
-          defensive.baseCd - (playerDeath.timestamp - lastCast.timestamp);
-        available = remainingFirstCharge <= 0 || remainingSecondCharge <= 0;
-      }
-    } else {
-      // Standard cooldown check.
-      available = playerDeath.timestamp - lastUsed > defensive.baseCd;
-    }
-
-    return {
-      ability: lastCast?.ability ||
-        getAbilityInstanceById(defensive.spellId) || {
-          id: defensive.spellId,
-          name: defensive.name
-            ? `${defensive.name} [Never used]`
-            : "Unknown (Fall?)",
-          type: 0,
-          icon: "",
-          isExcludedFromDamageAndHealing: false,
-          isOffGcd: false,
-          isMelee: false,
-          isStaggerAbsorb: false,
-          isStaggerDamage: false,
-          isStaggerDmaage: false,
-        },
-      lastUsed,
-      available,
-      cooldown: defensive.baseCd,
-    };
-  });
 };
 
 // Computes the defensive casts details for a given death event.
@@ -221,7 +91,7 @@ const getDefensiveCasts = (
         startFightTime: fight.startTime,
         abilityEvent: { timestamp: status.lastUsed! } as RpgLogs.AnyEvent,
         deathTime: playerDeath.timestamp,
-        resurrected
+        resurrected,
       })
     );
 
@@ -273,12 +143,17 @@ const processDeathEvent = (
       ability: playerDeath.killingAbility,
       startFightTime: fight.startTime,
     }),
-    timestamp: TimeUtils.formatTimestamp(fight.startTime, playerDeath.timestamp),
+    timestamp: TimeUtils.formatTimestamp(
+      fight.startTime,
+      playerDeath.timestamp
+    ),
     defensiveCasts: formatDefensivesList(
       defensiveInfo.usedDefensives,
-      `<Wipe>No defensives${CONFIG.CHECK_BY_LAST_10_SECONDS
-        ? " between death and last 10 seconds"
-        : " the entire fight!!"}</Wipe>`
+      `<Wipe>No defensives${
+        CONFIG.CHECK_BY_LAST_10_SECONDS
+          ? " between death and last 10 seconds"
+          : " the entire fight!!"
+      }</Wipe>`
     ),
     availableDefensives: formatDefensivesList(
       defensiveInfo.availableDefensives,
@@ -288,7 +163,12 @@ const processDeathEvent = (
       defensiveInfo.unavailableDefensives,
       "<Wipe>No defensives on cooldown</Wipe>"
     ),
-    resurrected: resInfo.text,
+    resurrected: resInfo.wasResurrected
+      ? `<Kill>Yes [${TimeUtils.formatTimestamp(
+          fight.startTime,
+          resInfo.timestamp!
+        )}]</Kill>`
+      : `<Wipe>No</Wipe>`,
   };
 };
 
@@ -302,7 +182,10 @@ export default getComponent = ():
   | RpgLogs.TableComponent
   | RpgLogs.EnhancedMarkdownComponent => {
   // Ensure a single fight is selected.
-  if (CONFIG.CHECK_ONLY_ONE_FIGHT && reportGroup.fights.length !== 1) {
+  if (
+    DEATH_RECAP_CONFIG.CHECK_ONLY_ONE_FIGHT &&
+    reportGroup.fights.length !== 1
+  ) {
     return {
       component: "EnhancedMarkdown",
       props: {
@@ -316,7 +199,7 @@ export default getComponent = ():
   // Build table data rows.
   const seriesData: FightDeaths[] = deathByFights.map((fightWithDeaths) => {
     const deaths: PlayerDeath[] = fightWithDeaths.deaths
-      .map((death) =>
+      .map((death: RpgLogs.DeathEvent) =>
         processDeathEvent(
           fightWithDeaths.fight,
           death,
