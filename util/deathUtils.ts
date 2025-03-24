@@ -7,8 +7,9 @@ import { getClassDefensives } from "./getDefensive";
 // Configuration constants
 export const CONFIG = {
   CHECK_BY_LAST_10_SECONDS: false,
-  MAX_DEATHS_COUNT: eventFilters.deathsCutoff || 5,
-  LAST_SECONDS_THRESHOLD: 10000, // 10 seconds in ms
+  MAX_DEATHS_COUNT: eventFilters.deathsCutoff || 3,
+  LAST_SECONDS_THRESHOLD: 10000, // 10 seconds in ms,
+  BUFF_CHECK_WINDOW: 500, // 500ms window to check for active buffs
 } as const;
 
 // Returns an array of fights with death events
