@@ -33,7 +33,7 @@ export const getActiveBuffs = (
 
   // Track buff stacks
   const buffStacks: { [key: number]: number } = {};
-  
+
   // Get all buff events before death with a small buffer window
   const BUFFER_WINDOW = 500; // 500ms buffer for event timing
   const allBuffEvents = fight
@@ -42,21 +42,21 @@ export const getActiveBuffs = (
       (event) =>
         event.target?.id === playerDeath.target?.id &&
         // For removebuff events, add a buffer window to account for concurrency
-        (event.type === "removebuff" || event.type === "removebuffstack" ?
-          event.timestamp <= playerDeath.timestamp + BUFFER_WINDOW :
-          event.timestamp <= playerDeath.timestamp) &&
+        (event.type === "removebuff" || event.type === "removebuffstack"
+          ? event.timestamp <= playerDeath.timestamp + BUFFER_WINDOW
+          : event.timestamp <= playerDeath.timestamp) &&
         event.ability &&
         defensiveIds.includes(event.ability.id)
     );
 
   // Process events chronologically to track buff stacks
   allBuffEvents.sort((a, b) => a.timestamp - b.timestamp);
-  
+
   for (const event of allBuffEvents) {
     if (!event.ability?.id) continue;
-    
+
     const spellId = event.ability.id;
-    
+
     // Only process removebuff events if they're not within the buffer window
     if (event.type === "removebuff" || event.type === "removebuffstack") {
       if (event.timestamp > playerDeath.timestamp + BUFFER_WINDOW) {
@@ -66,7 +66,7 @@ export const getActiveBuffs = (
         continue; // Skip removal events that are too close to death
       }
     }
-    
+
     if (event.type === "applybuff") {
       buffStacks[spellId] = 1;
     } else if (event.type === "applybuffstack") {
@@ -80,15 +80,16 @@ export const getActiveBuffs = (
 
   // Get the most recent application of each active buff
   const activeBuffs = allBuffEvents
-    .filter((event) => 
-      event.ability?.id && 
-      buffStacks[event.ability.id] > 0 &&
-      (event.type === "applybuff" || event.type === "applybuffstack")
+    .filter(
+      (event) =>
+        event.ability?.id &&
+        buffStacks[event.ability.id] > 0 &&
+        (event.type === "applybuff" || event.type === "applybuffstack")
     )
     .reduce((acc, event) => {
       if (!event.ability?.id) return acc;
-      
-      const existing = acc.find(e => e.ability?.id === event.ability?.id);
+
+      const existing = acc.find((e) => e.ability?.id === event.ability?.id);
       if (!existing || event.timestamp > existing.timestamp) {
         // Replace or add the most recent application
         if (existing) {

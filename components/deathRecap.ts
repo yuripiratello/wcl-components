@@ -177,6 +177,23 @@ const formatDefensivesList = (list: string[], emptyMessage: string): string => {
   return list.length > 0 ? list.join("<br>") : emptyMessage;
 };
 
+// Main function to get death recap data
+export const getDeathRecap = (): RpgLogs.TableComponent => {
+  const component = getComponent();
+  if (
+    typeof component === "string" ||
+    Array.isArray(component) ||
+    typeof component === "number" ||
+    !("component" in component)
+  ) {
+    throw new Error("Invalid component type");
+  }
+  if (component.component !== "Table") {
+    throw new Error("Expected Table component");
+  }
+  return component;
+};
+
 // Main component function.
 export default getComponent = ():
   | RpgLogs.TableComponent

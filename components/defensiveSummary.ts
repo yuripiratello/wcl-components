@@ -1,4 +1,9 @@
-import { CONFIG, getDeathByFights, getDefensiveStatuses, getActiveBuffs } from "../util/deathUtils";
+import {
+  CONFIG,
+  getActiveBuffs,
+  getDeathByFights,
+  getDefensiveStatuses,
+} from "../util/deathUtils";
 
 import type { RpgLogs } from "../definitions/RpgLogs";
 import { TimeUtils } from "../util/timeUtils";
@@ -41,7 +46,11 @@ interface PlayerSummary {
 const processDeathEvent = (
   fight: RpgLogs.Fight,
   playerDeath: RpgLogs.DeathEvent
-): { hadAvailableDefensivesButDidntUse: boolean; fightId: number; killingAbility: RpgLogs.Ability | null } | null => {
+): {
+  hadAvailableDefensivesButDidntUse: boolean;
+  fightId: number;
+  killingAbility: RpgLogs.Ability | null;
+} | null => {
   if (!playerDeath.target) return null;
 
   const playerSpec = fight.specForPlayer(playerDeath.target);
@@ -50,22 +59,46 @@ const processDeathEvent = (
     playerDeath,
     playerSpec
   );
-  
+
   // Get active buffs at time of death
   const activeBuffs = getActiveBuffs(fight, playerDeath, playerSpec);
-  const activeDefensiveIds = new Set(activeBuffs.map((buff: RpgLogs.ApplyBuffOrDebuffEvent) => buff.ability?.id).filter(Boolean));
-  
+  const activeDefensiveIds = new Set(
+    activeBuffs
+      .map((buff: RpgLogs.ApplyBuffOrDebuffEvent) => buff.ability?.id)
+      .filter(Boolean)
+  );
+
   // Check if player had available defensives but didn't use any
-  const hasAvailableDefensives = defensiveStatuses.some((status) => status.available);
-  const usedSomeDefensive = defensiveStatuses.some((status) => 
-    !status.available && activeDefensiveIds.has(status.ability.id)
+  const hasAvailableDefensives = defensiveStatuses.some(
+    (status) => status.available
+  );
+  const usedSomeDefensive = defensiveStatuses.some(
+    (status) => !status.available && activeDefensiveIds.has(status.ability.id)
   );
 
   return {
-    hadAvailableDefensivesButDidntUse: hasAvailableDefensives && !usedSomeDefensive,
+    hadAvailableDefensivesButDidntUse:
+      hasAvailableDefensives && !usedSomeDefensive,
     fightId: fight.id,
     killingAbility: playerDeath.killingAbility,
   };
+};
+
+// Main function to get defensive summary data
+export const getDefensiveSummary = (): RpgLogs.TableComponent => {
+  const component = getComponent();
+  if (
+    typeof component === "string" ||
+    Array.isArray(component) ||
+    typeof component === "number" ||
+    !("component" in component)
+  ) {
+    throw new Error("Invalid component type");
+  }
+  if (component.component !== "Table") {
+    throw new Error("Expected Table component");
+  }
+  return component;
 };
 
 // Main component function
@@ -125,7 +158,10 @@ export default getComponent = (): RpgLogs.TableComponent => {
     totalDeaths: summary.totalDeaths,
     fightIds: Array.from(summary.fightIds).join(", "),
     killingAbilities: Array.from(summary.killingAbilities.values())
-      .map(ability => `${ability.abilityName} (${Array.from(ability.fightIds).join(", ")})`)
+      .map(
+        (ability) =>
+          `${ability.abilityName} (${Array.from(ability.fightIds).join(", ")})`
+      )
       .join("<br>"),
   }));
 
