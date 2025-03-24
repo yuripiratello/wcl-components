@@ -254,19 +254,11 @@ export default getComponent = ():
     seriesData.map((fightDeath) => {
       divs.push({
         data: {
-          component: "EnhancedMarkdown",
-          props: {
-            content: `Fight ID: ${fightDeath.fightId}`,
-          },
-        },
-      });
-      divs.push({
-        data: {
           component: "Table",
           props: {
             columns: {
               title: {
-                header: "Death Recap",
+                header: `Death Recap - Fight ID: ${fightDeath.fightId}`,
                 textAlign: "center",
                 colSpan: 5,
                 columns: TABLE_COLUMNS,
@@ -286,38 +278,8 @@ export default getComponent = ():
       direction: "column",
       gap: 8,
       divs: buildFlexComponentDivs(seriesData),
-      // divs: [{
-      //   data: {
-      //     component: 'EnhancedMarkdown',
-      //     props: {
-      //       content: '1'
-      //     }
-      //   },
-      // }, {
-      //   data: {
-      //     component: 'EnhancedMarkdown',
-      //     props: {
-      //       content: '2'
-      //     }
-      //   }
-      // }]
     },
   } as any;
-
-  // return {
-  //   component: "Table",
-  //   props: {
-  //     columns: {
-  //       title: {
-  //         header: "Death Recap",
-  //         textAlign: "center",
-  //         colSpan: 5,
-  //         columns: TABLE_COLUMNS,
-  //       },
-  //     },
-  //     data: flatSeriesData,
-  //   },
-  // } as RpgLogs.TableComponent;
 };
 
 // Helper function to create a header row

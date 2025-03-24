@@ -7,6 +7,13 @@
 This is a component that shows the last 5 deaths of a player in a fight.
 It will show the time of death, the ability that killed the player and the defensive skills used during the fight by the player.
 
+## Defensive Summary
+
+[Import String](https://github.com/yuripiratello/wcl-components/blob/main/dist/defensiveSummary.component.lzstring.txt)
+
+This is a component that shows the last 5 deaths (or once is fixed, the amount of deaths from the UI filter) of a player in a fight.
+It will show the time of death, the ability that killed the player and the defensive skills used during the fight by the player.
+
 
 ## How to use
 Clone this repository or create your own repository directly from the [template](https://github.com/JoschiGrey/WCL-TS-Components/generate).
