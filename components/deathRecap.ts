@@ -13,7 +13,7 @@ import getPlayerMarkdown from "../util/getPlayerMarkdown";
 
 // Configuration constants
 const CONFIG = {
-  CHECK_ONLY_ONE_FIGHT: true,
+  CHECK_ONLY_ONE_FIGHT: false,
   CHECK_BY_LAST_10_SECONDS: false,
   MAX_DEATHS_COUNT: 5,
   LAST_SECONDS_THRESHOLD: 10000, // 10 seconds in ms
@@ -25,7 +25,7 @@ const TABLE_COLUMNS = {
   player: { header: "Player" },
   ability: { header: "Ability" },
   timestamp: { header: "Death Time", textAlign: "right" },
-  defensiveCasts: { header: "Defensive Casts" },
+  defensiveCasts: { header: "Defensive Cast" },
   availableDefensives: { header: "Available Defensives" },
   unavailableDefensives: { header: "Unavailable Defensives" },
   resurrected: { header: "Resurrected", textAlign: "center" },
