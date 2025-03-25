@@ -80,7 +80,7 @@ const processDeathEvent = (
   return {
     hadAvailableDefensivesButDidntUse:
       hasAvailableDefensives && !usedSomeDefensive,
-    fightId: fight.id,
+    fightId: fight.idInReport,
     killingAbility: playerDeath.killingAbility,
   };
 };

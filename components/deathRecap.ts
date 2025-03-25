@@ -146,7 +146,7 @@ const processDeathEvent = (
   );
 
   return {
-    fightId: fight.id,
+    fightId: fight.idInReport,
     player: getPlayerMarkdown(playerDeath.target, playerSpec),
     ability: getAbilityDescription({
       ability: playerDeath.killingAbility,
@@ -219,7 +219,7 @@ export default getComponent = ():
       .filter((death): death is PlayerDeath => death !== null);
 
     return {
-      fightId: fightWithDeaths.fight.id,
+      fightId: fightWithDeaths.fight.idInReport,
       deaths,
     };
   });
