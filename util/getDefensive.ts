@@ -14,7 +14,7 @@ type ClassDefensive = {
 
 const DEFENSIVES: ClassDefensive[] = [
   {
-    class: "Death Knight",
+    class: "DeathKnight",
     defensives: [
       {
         spellId: 48743,
@@ -67,7 +67,7 @@ const DEFENSIVES: ClassDefensive[] = [
     ],
   },
   {
-    class: "Demon Hunter",
+    class: "DemonHunter",
     defensives: [
       {
         spellId: 196718,
